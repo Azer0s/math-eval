@@ -1,6 +1,6 @@
 ## Math Eval PoC
 
-Simple C# project to test out some different lexer techniques for dealing with calculations in programming languages.
+Simple C# project to test out some different lexer techniques for dealing with calculations (that follow BODMAS) in programming languages.
 
 #### Todo
 
