@@ -80,6 +80,14 @@ namespace MathEval
         {
             var tks = tokens.ToList();
             
+            if(tks.Count == 2)
+            {
+                if(tks[0].Value == "-" && tks[1].Type == Type.NUMBER)
+                {
+                    return float.Parse($"-{tks[1].Value}");
+                }
+            }
+            
             IEnumerable<TSource> IndexRange<TSource>(IList<TSource> source, int fromIndex, int toIndex)
             {
                 var currIndex = fromIndex;
