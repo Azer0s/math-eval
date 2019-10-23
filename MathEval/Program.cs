@@ -27,6 +27,17 @@ namespace MathEval
         private static IEnumerable<Token> Lex(string input)
         {
             var buffer = new Token();
+
+            Token ReturnBuffer()
+            {
+                if (buffer.Type == Type.NUMBER && buffer.Value.EndsWith("."))
+                {
+                    throw new Exception();
+                }
+                
+                return buffer;
+            }
+            
             foreach (var c in input)
             {
                 switch (c)
@@ -42,15 +53,29 @@ namespace MathEval
                     case ')':
                         if (!string.IsNullOrEmpty(buffer.Value))
                         {
-                            yield return buffer; buffer = new Token();
+                            yield return ReturnBuffer(); buffer = new Token();
                         }
                         
                         yield return new Token{Type = Type.OPERATOR, Value = c.ToString()};
                         break;
+                    case '.':
+                        if (buffer.Type != Type.NUMBER)
+                        {
+                            throw new Exception();
+                        }
+
+                        if (buffer.Value != null && buffer.Value.Contains("."))
+                        {
+                            throw new Exception();
+                        }
+
+                        buffer.Value += c;
+                        
+                        break;
                     case char x when char.IsDigit(x):
                         if (buffer.Type != Type.NUMBER && !string.IsNullOrEmpty(buffer.Value))
                         {
-                            yield return buffer; buffer = new Token();
+                            yield return ReturnBuffer(); buffer = new Token();
                         }
 
                         buffer.Type = Type.NUMBER;
@@ -60,7 +85,7 @@ namespace MathEval
                     case char x when char.IsLetter(x):
                         if (buffer.Type != Type.IDENTIFIER && !string.IsNullOrEmpty(buffer.Value))
                         {
-                            yield return buffer; buffer = new Token();
+                            yield return ReturnBuffer(); buffer = new Token();
                         }
                         
                         buffer.Type = Type.IDENTIFIER;
@@ -72,7 +97,7 @@ namespace MathEval
             
             if (!string.IsNullOrEmpty(buffer.Value))
             {
-                yield return buffer;
+                yield return ReturnBuffer();
             }
         }
 
@@ -188,6 +213,8 @@ namespace MathEval
             Console.WriteLine(Calculate(Lex("(11 - 15 / 5) * 4 - 12"))); //20
             Console.WriteLine(Calculate(Lex("109 - (7 * 3 - 15) / 3"))); //107
             Console.WriteLine(Calculate(Lex("89 * (52 / 13 + 6) + 18"))); //908
+            Console.WriteLine(Calculate(Lex("(14.6 + 8.8) * 0.5 - (26.7 - 12.9) / 0.3"))); //-34.3
+            Console.WriteLine(Calculate(Lex("0.2 * (34.2 - 2.5 / 0.1) + 0.04 * 0.1"))); //1.844
         }
     }
 }
