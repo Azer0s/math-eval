@@ -101,9 +101,23 @@ namespace MathEval
             }
         }
 
-        private static float Calculate(IEnumerable<Token> tokens)
+        private static float Calculate(IEnumerable<Token> tokens, Dictionary<string, float> variables = null)
         {
-            var tks = tokens.ToList();
+            if (variables == null)
+            {
+                variables = new Dictionary<string, float>();
+            }
+            
+            var tks = tokens.Select(a =>
+            {
+                if (a.Type == Type.IDENTIFIER)
+                {
+                    a.Type = Type.NUMBER;
+                    a.Value = variables.ContainsKey(a.Value) ? variables[a.Value].ToString() : throw new Exception();
+                }
+
+                return a;
+            }).ToList();
             
             if(tks.Count == 2)
             {
@@ -215,6 +229,9 @@ namespace MathEval
             Console.WriteLine(Calculate(Lex("89 * (52 / 13 + 6) + 18"))); //908
             Console.WriteLine(Calculate(Lex("(14.6 + 8.8) * 0.5 - (26.7 - 12.9) / 0.3"))); //-34.3
             Console.WriteLine(Calculate(Lex("0.2 * (34.2 - 2.5 / 0.1) + 0.04 * 0.1"))); //1.844
+            Console.WriteLine(Calculate(Lex("89 * (a / 13 + 6) + b"), new Dictionary<string, float>{{"a", 52}, {"b", 18}})); //908
+            Console.WriteLine(Calculate(Lex("(14.6 + a) * 0.5 - (b - 12.9) / 0.3"), new Dictionary<string, float>{{"a", 8.8f}, {"b", 26.7f}})); //-34.3
+            Console.WriteLine(Calculate(Lex("0.2 * (a - 2.5 / b) + c * 0.1"), new Dictionary<string, float>{{"a", 34.2f}, {"b", 0.1f}, {"c", 0.04f}})); //1.844
         }
     }
 }
